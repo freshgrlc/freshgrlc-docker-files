@@ -11,9 +11,9 @@ clean:
 
 ${IMAGENAME}_latest.tar:
 	docker image build -t ${IMAGENAME} .
-	if [ ! -f $@ ] || [ "$$(docker image ls garlicoind:latest | tail -n 1 | awk '{ print $$3 }')" != "$$(cat .lastimageid)" ]; then \
+	if [ ! -f $@ ] || [ "$$(docker image ls ${IMAGENAME}:latest | tail -n 1 | awk '{ print $$3 }')" != "$$(cat .lastimageid)" ]; then \
 		docker save --output $@ ${IMAGENAME}:latest || exit 1; \
-		docker image ls garlicoind:latest | tail -n 1 | awk '{ print $$3 }' > .lastimageid || exit 1; \
+		docker image ls ${IMAGENAME}:latest | tail -n 1 | awk '{ print $$3 }' > .lastimageid || exit 1; \
 	fi
 
 upload: ${IMAGENAME}_latest.tar
