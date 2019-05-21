@@ -1,0 +1,12 @@
+diff -uNr tuxcoin-V2-2.0.orig/src/net.h tuxcoin-V2-2.0/src/net.h
+--- tuxcoin-V2-2.0.orig/src/net.h	2019-01-05 01:35:29.000000000 +0100
++++ tuxcoin-V2-2.0/src/net.h	2019-05-21 01:16:04.211968657 +0200
+@@ -56,7 +56,7 @@
+ /** Maximum length of strSubVer in `version` message */
+ static const unsigned int MAX_SUBVERSION_LENGTH = 256;
+ /** Maximum number of automatic outgoing nodes */
+-static const int MAX_OUTBOUND_CONNECTIONS = 8;
++static const int MAX_OUTBOUND_CONNECTIONS = 96;
+ /** Maximum number of addnode outgoing nodes */
+ static const int MAX_ADDNODE_CONNECTIONS = 8;
+ /** -listen default */

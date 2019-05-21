@@ -1,0 +1,14 @@
+diff -uNr tuxcoin-V2-2.0.orig/src/miner.cpp tuxcoin-V2-2.0/src/miner.cpp
+--- tuxcoin-V2-2.0.orig/src/miner.cpp	2019-01-05 01:35:29.000000000 +0100
++++ tuxcoin-V2-2.0/src/miner.cpp	2019-05-21 01:14:14.183181795 +0200
+@@ -98,8 +98,8 @@
+     inBlock.clear();
+ 
+     // Reserve space for coinbase tx
+-    nBlockWeight = 4000;
+-    nBlockSigOpsCost = 400;
++    nBlockWeight = 64000;
++    nBlockSigOpsCost = 800;
+     fIncludeWitness = false;
+ 
+     // These counters do not include coinbase tx

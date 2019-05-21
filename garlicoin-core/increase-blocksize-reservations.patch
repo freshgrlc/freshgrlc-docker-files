@@ -1,0 +1,16 @@
+diff -uNr Garlicoin.orig/src/miner.cpp Garlicoin/src/miner.cpp
+--- Garlicoin.orig/src/miner.cpp        2018-01-27 22:21:26.887391231 +0100
++++ Garlicoin/src/miner.cpp     2018-01-27 22:22:41.363429386 +0100
+@@ -117,9 +117,9 @@
+     inBlock.clear();
+
+     // Reserve space for coinbase tx
+-    nBlockSize = 1000;
+-    nBlockWeight = 4000;
+-    nBlockSigOpsCost = 400;
++    nBlockSize = 16000;
++    nBlockWeight = 64000;
++    nBlockSigOpsCost = 800;
+     fIncludeWitness = false;
+
+     // These counters do not include coinbase tx
