@@ -52,4 +52,4 @@ ENTRYPOINT [ "/entrypoint.sh" ]
 
 VOLUME /var/lib/tuxcoind
 
-EXPOSE 42069 42070
+EXPOSE 42071 42072
