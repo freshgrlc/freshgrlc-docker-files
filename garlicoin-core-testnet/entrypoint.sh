@@ -40,7 +40,7 @@ if [ "$1" = 'garlicoind' ]; then
         [ ! -z "${MINING_ADDRESS}" ] && \
         echo "   > Mining to address: ${MINING_ADDRESS}"
 
-        /mine-testnet.sh ${MINING_ADDRESS} &
+        gosu garlicoind /mine-testnet.sh ${MINING_ADDRESS} &
     fi
 
     exec gosu garlicoind "$@"
