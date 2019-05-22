@@ -21,6 +21,6 @@ ${IMAGENAME}_latest.tar: docker-build
 
 upload: ${IMAGENAME}_latest.tar
 	[ "$$(ssh ${SERVER} md5sum /tmp/$< | awk '{ print $$1 }')" = "$$(md5sum $< | awk '{ print $$1 }')" ] || \
-		scp $< ${SERVER}:/tmp
+		scp -C $< ${SERVER}:/tmp
 	ssh ${SERVER} docker load --input /tmp/$<
 
