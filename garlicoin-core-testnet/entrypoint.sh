@@ -35,6 +35,14 @@ if [ "${1:0:1}" = '-' ]; then
 fi
 
 if [ "$1" = 'garlicoind' ]; then
+    if [ ! -z "${MINE}" ]; then \
+        echo "Launching testnet miner in the background..."
+        [ ! -z "${MINING_ADDRESS}" ] && \
+        echo "   > Mining to address: ${MINING_ADDRESS}"
+
+        /mine-testnet.sh ${MINING_ADDRESS} &
+    fi
+
     exec gosu garlicoind "$@"
 fi
 
