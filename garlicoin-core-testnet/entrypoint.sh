@@ -15,7 +15,7 @@ listen=1
 
 rpcuser=${RPCUSER}
 rpcpassword=${RPCPASSWORD}
-rpcport=42068
+rpcport=42070
 
 daemon=0
 printtoconsole=1

@@ -1,8 +1,8 @@
 FROM garlicoin-core-base:latest
 
-CMD [ "garlicoind", "-nodaemon", "-printtoconsole" ]
+CMD [ "garlicoind", "-testnet", "-nodaemon", "-printtoconsole" ]
 
 COPY entrypoint.sh /entrypoint.sh
 ENTRYPOINT [ "/entrypoint.sh" ]
 
-EXPOSE 42068 42069
+EXPOSE 42070 42075

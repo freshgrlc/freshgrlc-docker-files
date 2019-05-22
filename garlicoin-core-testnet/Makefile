@@ -1,5 +1,5 @@
 
-IMAGENAME=tuxcoind
+IMAGENAME=garlicoind-testnet
 
 .PHONY: clean docker-build upload ${IMAGENAME}_latest.tar
 
@@ -10,6 +10,7 @@ clean:
 	rm -f .lastimageid
 
 docker-build:
+	${MAKE} -C ../garlicoin-core-base docker-build
 	docker image build -t ${IMAGENAME} .
 
 ${IMAGENAME}_latest.tar: docker-build
