@@ -1,8 +1,8 @@
 #!/bin/bash
 set -e
 
-if [ ! -d /var/lib/tuxcoind/.tuxcoin ]; then \
-    mkdir /var/lib/tuxcoind/.tuxcoin
+if [ ! -f /var/lib/tuxcoind/.tuxcoin/tuxcoin.conf ]; then \
+    mkdir -p /var/lib/tuxcoind/.tuxcoin
 
     [ -z "${RPCPASSWORD}" ] && RPCPASSWORD="$(dd if=/dev/urandom bs=45 count=1 | base64)"
     [ -z "${RPCUSER}" ] && RPCUSER=rpcuser
@@ -16,6 +16,8 @@ listen=1
 rpcuser=${RPCUSER}
 rpcpassword=${RPCPASSWORD}
 rpcport=42072
+rpcbind=0.0.0.0:42072
+rpcallowip=0.0.0.0/0
 
 daemon=0
 printtoconsole=1

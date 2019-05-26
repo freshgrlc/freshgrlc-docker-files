@@ -1,8 +1,8 @@
 #!/bin/bash
 set -e
 
-if [ ! -d /var/lib/garlicoind/.garlicoin ]; then \
-    mkdir /var/lib/garlicoind/.garlicoin
+if [ ! -f /var/lib/garlicoind/.garlicoin/garlicoin.conf ]; then \
+    mkdir -p /var/lib/garlicoind/.garlicoin
 
     [ -z "${RPCPASSWORD}" ] && RPCPASSWORD="$(dd if=/dev/urandom bs=45 count=1 | base64)"
     [ -z "${RPCUSER}" ] && RPCUSER=rpcuser
@@ -16,6 +16,8 @@ listen=1
 rpcuser=${RPCUSER}
 rpcpassword=${RPCPASSWORD}
 rpcport=42068
+rpcbind=0.0.0.0:42068
+rpcallowip=0.0.0.0/0
 
 daemon=0
 printtoconsole=1
