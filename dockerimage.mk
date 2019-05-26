@@ -1,5 +1,5 @@
 
-SNAPSHOT=$(shell date '+%Y%m%d%H%M')
+SNAPSHOT=$(shell date -u '+%Y%m%d%H%M')
 
 .PHONY: clean docker-build upload ${IMAGENAME}_latest.tar
 
