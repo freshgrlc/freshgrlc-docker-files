@@ -53,3 +53,5 @@ ENTRYPOINT [ "/entrypoint.sh" ]
 VOLUME /var/lib/tuxcoind
 
 EXPOSE 42071 42072
+
+HEALTHCHECK CMD su - tuxcoind -c 'tuxcoin-cli getblocktemplate'

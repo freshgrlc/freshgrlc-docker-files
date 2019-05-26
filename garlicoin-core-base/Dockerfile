@@ -48,3 +48,5 @@ RUN cd /tmp/garlicoin-core-0.16.0 \
 RUN rm -Rf /tmp/garlicoin-core-0.16.0
 
 VOLUME /var/lib/garlicoind
+
+HEALTHCHECK CMD su - garlicoind -c 'garlicoin-cli getblocktemplate'
