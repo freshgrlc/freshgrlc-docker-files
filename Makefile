@@ -1,5 +1,5 @@
 
-SUBDIRS = garlicoin-core garlicoin-core-testnet tuxcoin-core
+SUBDIRS = freshgrlc-indexer garlicoin-core garlicoin-core-testnet tuxcoin-core
 
 all:
 	for dir in ${SUBDIRS}; do ${MAKE} -C $$dir || exit 1; done
