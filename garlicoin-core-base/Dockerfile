@@ -31,10 +31,10 @@ RUN cd /tmp \
 
 COPY increase-blocksize-reservations.patch /tmp/increase-blocksize-reservations.patch
 COPY increase-max-connections.patch /tmp/increase-max-connections.patch
-COPY upstream-e1632c73-632ee374.patch /tmp/upstream-e1632c73-632ee374.patch
+COPY upstream-e1632c73-632ee374-94bfdd8f.patch /tmp/upstream-e1632c73-632ee374-94bfdd8f.patch
 
 RUN cd /tmp/garlicoin-core-0.16.0 \
-    && patch -p1 < /tmp/upstream-e1632c73-632ee374.patch \
+    && patch -p1 < /tmp/upstream-e1632c73-632ee374-94bfdd8f.patch \
     && patch -p1 < /tmp/increase-blocksize-reservations.patch \
     && patch -p1 < /tmp/increase-max-connections.patch \
     && rm -f /tmp/*.patch
