@@ -7,7 +7,7 @@ RUN cd /usr/src \
 
 RUN cd /usr/src/freshgrlc-indexer \
     && git fetch \
-    && git checkout 0bdddbd393d5c1f7a70ad2e3edb73927186de40c
+    && git checkout 4c756fd83b6d335872cb6dbae050c95d7a35bdc0
 
 WORKDIR /usr/src/freshgrlc-indexer
 
