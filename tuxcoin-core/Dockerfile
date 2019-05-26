@@ -29,12 +29,12 @@ RUN cd /tmp \
 
 COPY increase-blocksize-reservations.patch /tmp/increase-blocksize-reservations.patch
 COPY increase-max-connections.patch /tmp/increase-max-connections.patch
-COPY add-block-and-tx-source-logging.patch /tmp/add-block-and-tx-source-logging.patch
+COPY relayinfo.patch /tmp/relayinfo.patch
 
 RUN cd /tmp/tuxcoin-V2-2.0 \
     && patch -p1 < /tmp/increase-blocksize-reservations.patch \
     && patch -p1 < /tmp/increase-max-connections.patch \
-    && patch -p1 < /tmp/add-block-and-tx-source-logging.patch \
+    && patch -p1 < /tmp/relayinfo.patch \
     && rm -f /tmp/*.patch
 
 RUN cd /tmp/tuxcoin-V2-2.0 \

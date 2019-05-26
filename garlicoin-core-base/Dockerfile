@@ -6,6 +6,7 @@ RUN install -d -m 0700 -o garlicoind -g garlicoind /var/lib/garlicoind
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
         ca-certificates curl build-essential pkg-config \
+        automake autoconf libtool \
         gpg gpg-agent dirmngr \
         libssl-dev libevent-dev \
         libboost-dev libboost-system-dev \
@@ -30,13 +31,16 @@ RUN cd /tmp \
 
 COPY increase-blocksize-reservations.patch /tmp/increase-blocksize-reservations.patch
 COPY increase-max-connections.patch /tmp/increase-max-connections.patch
+COPY upstream-e1632c73-632ee374.patch /tmp/upstream-e1632c73-632ee374.patch
 
 RUN cd /tmp/garlicoin-core-0.16.0 \
+    && patch -p1 < /tmp/upstream-e1632c73-632ee374.patch \
     && patch -p1 < /tmp/increase-blocksize-reservations.patch \
     && patch -p1 < /tmp/increase-max-connections.patch \
     && rm -f /tmp/*.patch
 
 RUN cd /tmp/garlicoin-core-0.16.0 \
+    && autoreconf --install --force --warnings=all \
     && ./configure --disable-tests --disable-bench --disable-zmq --disable-wallet \
     && make -j16 \
     && make install

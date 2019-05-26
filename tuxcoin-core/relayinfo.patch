@@ -1,0 +1,314 @@
+diff -uNr tuxcoin-V2-2.0.orig/src/Makefile.am tuxcoin-V2-2.0/src/Makefile.am
+--- tuxcoin-V2-2.0.orig/src/Makefile.am	2019-05-26 00:55:29.930393763 +0200
++++ tuxcoin-V2-2.0/src/Makefile.am	2019-05-26 02:10:01.919225358 +0200
+@@ -124,6 +124,7 @@
+   pow.h \
+   protocol.h \
+   random.h \
++  relayinfo.h \
+   reverse_iterator.h \
+   reverselock.h \
+   rpc/blockchain.h \
+@@ -207,6 +208,7 @@
+   policy/policy.cpp \
+   policy/rbf.cpp \
+   pow.cpp \
++  relayinfo.cpp \
+   rest.cpp \
+   rpc/blockchain.cpp \
+   rpc/mining.cpp \
+diff -uNr tuxcoin-V2-2.0.orig/src/core_io.h tuxcoin-V2-2.0/src/core_io.h
+--- tuxcoin-V2-2.0.orig/src/core_io.h	2019-05-26 00:55:29.940393640 +0200
++++ tuxcoin-V2-2.0/src/core_io.h	2019-05-26 02:10:01.919225358 +0200
+@@ -31,6 +31,6 @@
+ std::string FormatScript(const CScript& script);
+ std::string EncodeHexTx(const CTransaction& tx, const int serializeFlags = 0);
+ void ScriptPubKeyToUniv(const CScript& scriptPubKey, UniValue& out, bool fIncludeHex);
+-void TxToUniv(const CTransaction& tx, const uint256& hashBlock, UniValue& entry, bool include_hex = true, int serialize_flags = 0);
++void TxToUniv(const CTransaction& tx, const uint256& hashBlock, UniValue& entry, bool include_hex = true, int serialize_flags = 0, std::string *relayedBy = NULL);
+ 
+ #endif // BITCOIN_CORE_IO_H
+diff -uNr tuxcoin-V2-2.0.orig/src/core_write.cpp tuxcoin-V2-2.0/src/core_write.cpp
+--- tuxcoin-V2-2.0.orig/src/core_write.cpp	2019-05-26 00:55:29.940393640 +0200
++++ tuxcoin-V2-2.0/src/core_write.cpp	2019-05-26 02:10:04.509196814 +0200
+@@ -7,6 +7,7 @@
+ #include <base58.h>
+ #include <consensus/consensus.h>
+ #include <consensus/validation.h>
++#include <relayinfo.h>
+ #include <script/script.h>
+ #include <script/standard.h>
+ #include <serialize.h>
+@@ -154,7 +155,7 @@
+     out.pushKV("addresses", a);
+ }
+ 
+-void TxToUniv(const CTransaction& tx, const uint256& hashBlock, UniValue& entry, bool include_hex, int serialize_flags)
++void TxToUniv(const CTransaction& tx, const uint256& hashBlock, UniValue& entry, bool include_hex, int serialize_flags, std::string *relayedBy)
+ {
+     entry.pushKV("txid", tx.GetHash().GetHex());
+     entry.pushKV("hash", tx.GetWitnessHash().GetHex());
+@@ -162,6 +163,7 @@
+     entry.pushKV("size", (int)::GetSerializeSize(tx, SER_NETWORK, PROTOCOL_VERSION));
+     entry.pushKV("vsize", (GetTransactionWeight(tx) + WITNESS_SCALE_FACTOR - 1) / WITNESS_SCALE_FACTOR);
+     entry.pushKV("locktime", (int64_t)tx.nLockTime);
++    entry.pushKV("relayedby", relayedBy ? *relayedBy : NullUniValue);
+ 
+     UniValue vin(UniValue::VARR);
+     for (unsigned int i = 0; i < tx.vin.size(); i++) {
+diff -uNr tuxcoin-V2-2.0.orig/src/net_processing.cpp tuxcoin-V2-2.0/src/net_processing.cpp
+--- tuxcoin-V2-2.0.orig/src/net_processing.cpp	2019-05-26 00:55:29.950393525 +0200
++++ tuxcoin-V2-2.0/src/net_processing.cpp	2019-05-26 02:10:01.919225358 +0200
+@@ -21,6 +21,7 @@
+ #include <primitives/block.h>
+ #include <primitives/transaction.h>
+ #include <random.h>
++#include <relayinfo.h>
+ #include <reverse_iterator.h>
+ #include <scheduler.h>
+ #include <tinyformat.h>
+@@ -1409,6 +1410,10 @@
+         // If this set of headers is valid and ends in a block with at least as
+         // much work as our tip, download as much as possible.
+         if (fCanDirectFetch && pindexLast->IsValid(BLOCK_VALID_TREE) && chainActive.Tip()->nChainWork <= pindexLast->nChainWork) {
++            if (chainActive.Tip()->phashBlock && *chainActive.Tip()->phashBlock != headers[nCount-1].GetHash()) {
++                relayinfo_register_new_object(headers[nCount-1].GetHash(), pfrom->addr, MSG_BLOCK);
++            }
++
+             std::vector<const CBlockIndex*> vToFetch;
+             const CBlockIndex *pindexWalk = pindexLast;
+             // Calculate all the blocks we'd need to switch to pindexLast, up to a limit.
+@@ -1881,6 +1886,10 @@
+             bool fAlreadyHave = AlreadyHave(inv);
+             LogPrint(BCLog::NET, "got inv: %s  %s peer=%d\n", inv.ToString(), fAlreadyHave ? "have" : "new", pfrom->GetId());
+ 
++            if (!fAlreadyHave && (inv.type == MSG_TX || inv.type == MSG_BLOCK)) {
++                relayinfo_register_new_object(inv, *pfrom);
++            }
++
+             if (inv.type == MSG_TX) {
+                 inv.type |= nFetchFlags;
+             }
+@@ -2333,6 +2342,10 @@
+             }
+         }
+ 
++        if (pindex) {
++            relayinfo_register_new_object(pindex->GetBlockHash(), pfrom->addr, MSG_BLOCK);
++        }
++
+         // When we succeed in decoding a block's txids from a cmpctblock
+         // message we typically jump to the BLOCKTXN handling code, with a
+         // dummy (empty) BLOCKTXN message, to re-use the logic there in
+diff -uNr tuxcoin-V2-2.0.orig/src/relayinfo.cpp tuxcoin-V2-2.0/src/relayinfo.cpp
+--- tuxcoin-V2-2.0.orig/src/relayinfo.cpp	1970-01-01 01:00:00.000000000 +0100
++++ tuxcoin-V2-2.0/src/relayinfo.cpp	2019-05-26 02:10:01.919225358 +0200
+@@ -0,0 +1,123 @@
++#include "relayinfo.h"
++
++#include "sync.h"   /* For CCriticalSection */
++
++class RelayInfo
++{
++    public:
++        inline RelayInfo(const uint256 &object = uint256(), const std::string &source = "") :
++            _object(object),
++            _source(source)
++        {
++        }
++
++        inline bool inUse(void) const
++        {
++            return this->source().empty();
++        }
++
++        inline const uint256 &object(void) const
++        {
++            return this->_object;
++        }
++
++        inline const std::string &source(void) const
++        {
++            return this->_source;
++        }
++
++    private:
++        uint256 _object;
++        std::string _source;
++};
++
++#define RINGBUF_SIZE            256
++
++#define RINGBUF_PREV(src)       (((src) + RINGBUF_SIZE - 1) % RINGBUF_SIZE)
++#define RINGBUF_NEXT(src)       (((src) + 1) % RINGBUF_SIZE)
++
++static CCriticalSection Lock;
++static RelayInfo RingBuffer[RINGBUF_SIZE];
++static int lastWrite = -1;
++
++
++static bool _is_public(const CNetAddr &addr)
++{
++    if (addr.IsIPv4())
++    {
++        return !(
++            addr.IsRFC1918() ||
++            addr.IsRFC2544() ||
++            addr.IsRFC3927() ||
++            addr.IsRFC6598()
++        );
++    }
++    else if (addr.IsIPv6())
++    {
++        return !(
++            addr.IsRFC4193() ||
++            addr.IsRFC4862()
++        );
++    }
++
++    /* We are probably not interested in anything else */
++    return false;
++}
++
++static bool _relayinfo_register_new_object(const uint256 &object, const std::string &source)
++{
++    LOCK(Lock);
++
++    if (!relayinfo_get_source_for(object).empty())
++        return false;
++
++    lastWrite = RINGBUF_NEXT(lastWrite);
++
++    RingBuffer[lastWrite] = RelayInfo(object, source);
++    return true;
++}
++
++void relayinfo_register_new_object(const uint256 &object, const CNetAddr &source, int type)
++{
++    if (type && type != MSG_BLOCK && type != MSG_TX)
++        return;
++
++    if (!_is_public(source))
++        return;
++
++    std::string sourceIp = source.ToStringIP();
++
++    bool inserted = _relayinfo_register_new_object(object, sourceIp);
++
++    if (!type)
++        return;     /* No idea what it is, so do not log */
++
++    LogPrintf("Received %s %s from %s%s\n", type == MSG_TX ? "tx " : "blk", object.ToString(), sourceIp, inserted ? " [FIRST]" : "");
++}
++
++void relayinfo_register_new_object(const CInv &object, const CNode &source)
++{
++    relayinfo_register_new_object(object.hash, source.addr, object.type);
++}
++
++std::string relayinfo_get_source_for(const uint256 &object)
++{
++    /* Sanity check */
++    if (lastWrite < 0 || lastWrite >= RINGBUF_SIZE)
++        return "";
++
++    LOCK(Lock);
++
++    int idx = lastWrite; do
++    {
++        const RelayInfo &info = RingBuffer[idx];
++        idx = RINGBUF_PREV(idx);
++
++        if (info.object() == object)
++            return info.source();
++    }
++    while (idx != lastWrite);
++
++    return "";
++}
++
+diff -uNr tuxcoin-V2-2.0.orig/src/relayinfo.h tuxcoin-V2-2.0/src/relayinfo.h
+--- tuxcoin-V2-2.0.orig/src/relayinfo.h	1970-01-01 01:00:00.000000000 +0100
++++ tuxcoin-V2-2.0/src/relayinfo.h	2019-05-26 02:10:01.919225358 +0200
+@@ -0,0 +1,15 @@
++#ifndef BITCOIN_RELAYINFO_H
++#define BITCOIN_RELAYINFO_H
++
++#include "uint256.h"
++#include "net.h"
++
++
++void relayinfo_register_new_object(const uint256 &object, const CNetAddr &source, int type = UNDEFINED);
++void relayinfo_register_new_object(const CInv &object, const CNode &source);
++std::string relayinfo_get_source_for(const uint256 &object);
++
++#endif
++
++
++
+diff -uNr tuxcoin-V2-2.0.orig/src/rpc/blockchain.cpp tuxcoin-V2-2.0/src/rpc/blockchain.cpp
+--- tuxcoin-V2-2.0.orig/src/rpc/blockchain.cpp	2019-05-26 00:55:29.980393166 +0200
++++ tuxcoin-V2-2.0/src/rpc/blockchain.cpp	2019-05-26 02:10:01.919225358 +0200
+@@ -27,6 +27,8 @@
+ #include <validationinterface.h>
+ #include <warnings.h>
+ 
++#include "relayinfo.h"
++
+ #include <stdint.h>
+ 
+ #include <univalue.h>
+@@ -136,7 +138,8 @@
+         if(txDetails)
+         {
+             UniValue objTx(UniValue::VOBJ);
+-            TxToUniv(*tx, uint256(), objTx, true, RPCSerializationFlags());
++            std::string relayedBy = relayinfo_get_source_for(tx->GetHash());
++            TxToUniv(*tx, uint256(), objTx, true, RPCSerializationFlags(), relayedBy.empty() ? NULL : &relayedBy);
+             txs.push_back(objTx);
+         }
+         else
+@@ -155,6 +158,10 @@
+     CBlockIndex *pnext = chainActive.Next(blockindex);
+     if (pnext)
+         result.push_back(Pair("nextblockhash", pnext->GetBlockHash().GetHex()));
++
++    std::string relayedBy = relayinfo_get_source_for(blockindex->GetBlockHash());
++    result.push_back(relayedBy.empty() ? Pair("relayedby", NullUniValue) : Pair("relayedby", relayedBy));
++
+     return result;
+ }
+ 
+diff -uNr tuxcoin-V2-2.0.orig/src/rpc/rawtransaction.cpp tuxcoin-V2-2.0/src/rpc/rawtransaction.cpp
+--- tuxcoin-V2-2.0.orig/src/rpc/rawtransaction.cpp	2019-05-26 00:55:29.980393166 +0200
++++ tuxcoin-V2-2.0/src/rpc/rawtransaction.cpp	2019-05-26 02:10:01.919225358 +0200
+@@ -18,6 +18,7 @@
+ #include <policy/rbf.h>
+ #include <primitives/transaction.h>
+ #include <rpc/safemode.h>
++#include <relayinfo.h>
+ #include <rpc/server.h>
+ #include <script/script.h>
+ #include <script/script_error.h>
+@@ -44,7 +45,8 @@
+     // Blockchain contextual information (confirmations and blocktime) is not
+     // available to code in bitcoin-common, so we query them here and push the
+     // data into the returned UniValue.
+-    TxToUniv(tx, uint256(), entry, true, RPCSerializationFlags());
++    std::string relayedBy = relayinfo_get_source_for(tx.GetHash());
++    TxToUniv(tx, uint256(), entry, true, RPCSerializationFlags(), relayedBy.empty() ? NULL : &relayedBy);
+ 
+     if (!hashBlock.IsNull()) {
+         entry.push_back(Pair("blockhash", hashBlock.GetHex()));
+@@ -514,7 +516,10 @@
+     }
+ 
+     UniValue result(UniValue::VOBJ);
+-    TxToUniv(CTransaction(std::move(mtx)), uint256(), result, false);
++    CTransaction tx(std::move(mtx));
++
++    std::string relayedBy = relayinfo_get_source_for(tx.GetHash());
++    TxToUniv(tx, uint256(), result, false, 0, relayedBy.empty() ? NULL : &relayedBy);
+ 
+     return result;
+ }
