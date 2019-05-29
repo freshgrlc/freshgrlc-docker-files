@@ -1,0 +1,5 @@
+
+location /.well-known/acme-challenge {
+    set $certbot        certbot:80;
+    proxy_pass          http://$certbot;
+}
