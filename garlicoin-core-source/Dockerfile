@@ -1,12 +1,12 @@
 FROM debian:sid
 
-RUN groupadd -r tuxcoind && useradd -r -g tuxcoind -d /var/lib/tuxcoind tuxcoind
-RUN install -d -m 0700 -o tuxcoind -g tuxcoind /var/lib/tuxcoind
+RUN groupadd -r garlicoind && useradd -r -g garlicoind -d /var/lib/garlicoind garlicoind
+RUN install -d -m 0700 -o garlicoind -g garlicoind /var/lib/garlicoind
 
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
         ca-certificates curl build-essential pkg-config \
-        automake autoconf libtool git \
+        automake autoconf libtool \
         gpg gpg-agent dirmngr \
         libssl-dev libevent-dev \
         libboost-dev libboost-system-dev \
@@ -23,35 +23,23 @@ RUN curl -o /usr/local/bin/gosu -SL "https://github.com/tianon/gosu/releases/dow
     && chmod +x /usr/local/bin/gosu
 
 RUN cd /tmp \
-    && git clone 'https://github.com/bleach86/tuxcoin-V2' tuxcoin-V2-2.0 \
-    && cd tuxcoin-V2-2.0 \
-    && git checkout c5011576cc746a5d86bb6d0a0a0cd7f6b47c1959
+    && curl -o garlicoin-core-src-0.16.0.3.tar.gz -SL 'https://github.com/nuc1e4r5n4k3/garlicoin-core/releases/download/v0.16.0.3/garlicoin-core-src-0.16.0.3.tar.gz' \
+    && echo 'b905b19d1fc9fc096c8223fea2169111fe8c2630ef9401ccecb18de1431fb7c2  garlicoin-core-src-0.16.0.3.tar.gz' | sha256sum -c -
+
+RUN cd /tmp \
+    && tar xzf garlicoin-core-src-0.16.0.3.tar.gz
 
 COPY increase-blocksize-reservations.patch /tmp/increase-blocksize-reservations.patch
 COPY increase-max-connections.patch /tmp/increase-max-connections.patch
-COPY relayinfo.patch /tmp/relayinfo.patch
+COPY upstream-e1632c73-632ee374-94bfdd8f.patch /tmp/upstream-e1632c73-632ee374-94bfdd8f.patch
 
-RUN cd /tmp/tuxcoin-V2-2.0 \
+RUN cd /tmp/garlicoin-core-0.16.0 \
+    && patch -p1 < /tmp/upstream-e1632c73-632ee374-94bfdd8f.patch \
     && patch -p1 < /tmp/increase-blocksize-reservations.patch \
     && patch -p1 < /tmp/increase-max-connections.patch \
-    && patch -p1 < /tmp/relayinfo.patch \
     && rm -f /tmp/*.patch
 
-RUN cd /tmp/tuxcoin-V2-2.0 \
-    && autoreconf --install --force --warnings=all \
-    && ./configure --disable-tests --disable-bench --disable-zmq --disable-wallet \
-    && make -j16 \
-    && make install \
-    && cd / \
-    && rm -Rf /tmp/tuxcoin-V2-2.0
+RUN cd /tmp/garlicoin-core-0.16.0 \
+    && autoreconf --install --force --warnings=all
 
-CMD [ "tuxcoind", "-nodaemon", "-printtoconsole" ]
 
-COPY entrypoint.sh /entrypoint.sh
-ENTRYPOINT [ "/entrypoint.sh" ]
-
-VOLUME /var/lib/tuxcoind
-
-EXPOSE 42071 42072
-
-HEALTHCHECK CMD su - tuxcoind -c 'tuxcoin-cli getblocktemplate'
