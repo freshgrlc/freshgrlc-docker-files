@@ -1,5 +1,6 @@
 
 IMAGENAME=freshgrlc-wallet-api
+IMAGESOURCE=freshgrlc-wallet-base
 
 include ../dockerimage.mk
 

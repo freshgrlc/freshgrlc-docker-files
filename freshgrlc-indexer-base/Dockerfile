@@ -5,11 +5,14 @@ RUN pip install --no-cache-dir cachetools Flask Flask-Cors gevent greenlet PyMyS
 RUN cd /usr/src \
     && git clone 'https://github.com/freshgrlc/freshgrlc-indexer'
 
-RUN cd /usr/src/freshgrlc-indexer \
-    && git fetch \
-    && git checkout 008c57a2c4cb9dd44f521e2c31c2b13c0198e394
-
 WORKDIR /usr/src/freshgrlc-indexer
+ENV GNUPGHOME=/usr/src/freshgrlc-indexer/.gnupg
 
+RUN gpg --receive-keys 8B42760F04F73EB62A13D62F2C01995BE64D11CF
 
+ARG TAG=undefined
+
+RUN    git fetch \
+    && git verify-tag ${TAG} \
+    && git checkout ${TAG}
 

@@ -1,5 +1,6 @@
 
 IMAGENAME=freshgrlc-indexer-api
+IMAGESOURCE=freshgrlc-indexer-base
 
 include ../dockerimage.mk
 

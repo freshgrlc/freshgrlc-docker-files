@@ -1,13 +1,12 @@
 
 IMAGENAME=freshgrlc-wallet-base
+GIT_REPOSITORY=https://github.com/freshgrlc/freshgrlc-wallet
 
-.PHONY: clean docker-build
+include ../buildgittag.mk
+
 
 all: docker-build
 
 clean:
 
 upload:
-
-docker-build:
-	docker image build -t ${IMAGENAME} .

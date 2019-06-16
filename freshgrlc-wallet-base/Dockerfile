@@ -7,11 +7,17 @@ RUN cd /usr/src \
     && cd /usr/src/freshgrlc-wallet \
     && git submodule update --init -f
 
-RUN cd /usr/src/freshgrlc-wallet \
-    && git fetch \
-    && git checkout 2f72017ec59bafe96c4350a8951d5a1176d88050 \
+WORKDIR /usr/src/freshgrlc-wallet
+ENV GNUPGHOME=/usr/src/freshgrlc-wallet/.gnupg
+
+RUN gpg --receive-keys 8B42760F04F73EB62A13D62F2C01995BE64D11CF
+
+ARG TAG=undefined
+
+RUN    git fetch \
+    && git verify-tag ${TAG} \
+    && git checkout ${TAG} \
     && git submodule update --init -f
 
-WORKDIR /usr/src/freshgrlc-wallet
 COPY indexer-config.py  indexer/config.py
 COPY wallet-config.py  config.py
