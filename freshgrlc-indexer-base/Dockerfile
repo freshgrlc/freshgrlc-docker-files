@@ -1,6 +1,6 @@
 FROM python:2
 
-RUN pip install --no-cache-dir cachetools Flask Flask-Cors gevent greenlet PyMySQL python-bitcoinrpc requests SQLAlchemy uwsgi
+RUN pip install --no-cache-dir cachetools Flask Flask-Cors gevent greenlet PyMySQL python-bitcoinrpc requests SQLAlchemy uwsgi base58
 
 RUN cd /usr/src \
     && git clone 'https://github.com/freshgrlc/freshgrlc-indexer'
