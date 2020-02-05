@@ -10,7 +10,7 @@ RUN cd /usr/src \
 WORKDIR /usr/src/freshgrlc-wallet
 ENV GNUPGHOME=/usr/src/freshgrlc-wallet/.gnupg
 
-RUN gpg --receive-keys 8B42760F04F73EB62A13D62F2C01995BE64D11CF
+RUN gpg --keyserver hkps://pgp.mit.edu --receive-keys 8B42760F04F73EB62A13D62F2C01995BE64D11CF
 
 ARG TAG=undefined
 

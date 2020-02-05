@@ -4,7 +4,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         ca-certificates git gnupg nodejs npm \
     && rm -rf /var/lib/apt/lists/*
 
-RUN gpg --receive-keys 8B42760F04F73EB62A13D62F2C01995BE64D11CF
+RUN gpg --keyserver hkps://pgp.mit.edu --receive-keys 8B42760F04F73EB62A13D62F2C01995BE64D11CF
 RUN npm install --global yarn
 
 COPY verify-checkout-latest-tag.sh /usr/local/bin/verify-checkout-latest-tag
