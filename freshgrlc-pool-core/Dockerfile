@@ -25,7 +25,7 @@ RUN cd /tmp && \
     make install
 
 WORKDIR /tmp/freshgrlc-pool
-CMD [ "test" ]
+CMD [ "build/pool/pool" ]
 HEALTHCHECK NONE
 
 COPY entrypoint.sh /entrypoint.sh
