@@ -8,7 +8,7 @@ RUN cd /usr/src \
 WORKDIR /usr/src/freshgrlc-indexer
 ENV GNUPGHOME=/usr/src/freshgrlc-indexer/.gnupg
 
-RUN gpg --keyserver hkps://pgp.mit.edu --receive-keys 8B42760F04F73EB62A13D62F2C01995BE64D11CF
+RUN gpg --keyserver hkps://pgp.mit.edu --receive-keys DC025394180D2FE2
 
 ARG TAG=undefined
 
