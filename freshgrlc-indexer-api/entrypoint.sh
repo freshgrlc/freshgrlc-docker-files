@@ -5,6 +5,7 @@ if [ ! -f /usr/src/freshgrlc-indexer/config.py ]; then \
     cat > /usr/src/freshgrlc-indexer/config.py <<EOF
 
 class Configuration(object):
+    COIN_TICKER = '${DATABASE}'
     DAEMON_URL = ''
     DATABASE_URL = 'mysql+pymysql://${DBUSER}:${DBPASSWORD}@${DBHOST}:3306/${DATABASE}'
 
