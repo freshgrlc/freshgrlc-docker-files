@@ -9,7 +9,7 @@ all: docker-build
 clean:
 
 docker-build: docker-build-depends
-	docker image build -t ${IMAGENAME}:${BUILD_TAG} .
+	docker image build -t ${IMAGENAME}:${BUILD_TAG} ${BUILD_ARGS} .
 	docker tag ${IMAGENAME}:${BUILD_TAG} ${IMAGENAME}:latest
 
 docker-build-depends:

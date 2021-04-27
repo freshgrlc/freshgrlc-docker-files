@@ -1,0 +1,60 @@
+diff --git a/lib/daemon.js b/lib/daemon.js
+index 7e5ace1..6e8376f 100644
+--- a/lib/daemon.js
++++ b/lib/daemon.js
+@@ -37,7 +37,7 @@ function DaemonInterface(daemons, logger){
+     }
+ 
+     function isOnline(callback){
+-        cmd('getinfo', [], function(results){
++        cmd('getblockchaininfo', [], function(results){
+             var allOnline = results.every(function(result){
+                 return !results.error;
+             });
+@@ -189,4 +189,4 @@ function DaemonInterface(daemons, logger){
+ 
+ DaemonInterface.prototype.__proto__ = events.EventEmitter.prototype;
+ 
+-exports.interface = DaemonInterface;
+\ No newline at end of file
++exports.interface = DaemonInterface;
+diff --git a/lib/pool.js b/lib/pool.js
+index d8366b5..52a819e 100644
+--- a/lib/pool.js
++++ b/lib/pool.js
+@@ -147,7 +147,7 @@ var pool = module.exports = function pool(options, authorizeFn, rewardTxGenerati
+ 
+         var generateProgress = function(){
+ 
+-            _this.daemon.cmd('getinfo', [], function(results) {
++            _this.daemon.cmd('getblockchaininfo', [], function(results) {
+                 var blockCount = results.sort(function (a, b) {
+                     return b.response.blocks - a.response.blocks;
+                 })[0].response.blocks;
+@@ -371,7 +371,8 @@ var pool = module.exports = function pool(options, authorizeFn, rewardTxGenerati
+         var batchRpcCalls = [
+             ['validateaddress', [options.address]],
+             ['getdifficulty', []],
+-            ['getinfo', []],
++            ['getblockchaininfo', []],
++            ['getnetworkinfo', []],
+             ['getmininginfo', []],
+             ['submitblock', []]
+         ];
+@@ -415,12 +416,12 @@ var pool = module.exports = function pool(options, authorizeFn, rewardTxGenerati
+                 return;
+             }
+ 
+-            options.testnet = rpcResults.getinfo.testnet;
+-            options.protocolVersion = rpcResults.getinfo.protocolversion;
++            options.testnet = rpcResults.getnetworkinfo.testnet;
++            options.protocolVersion = rpcResults.getnetworkinfo.protocolversion;
+ 
+             options.initStats = {
+-                connections: rpcResults.getinfo.connections,
+-                difficulty: rpcResults.getinfo.difficulty * algos[options.coin.algorithm].multiplier,
++                connections: rpcResults.getnetworkinfo.connections,
++                difficulty: rpcResults.getmininginfo.difficulty * algos[options.coin.algorithm].multiplier,
+                 networkHashRate: rpcResults.getmininginfo.networkhashps
+             };
+ 
