@@ -29,12 +29,12 @@ RUN cd /tmp \
 RUN cd /tmp \
     && tar xzf garlicoin-core-src-0.16.0.3.tar.gz
 
-COPY increase-blocksize-reservations.patch /tmp/increase-blocksize-reservations.patch
-COPY increase-max-connections.patch /tmp/increase-max-connections.patch
-COPY upstream-e1632c73-632ee374-94bfdd8f.patch /tmp/upstream-e1632c73-632ee374-94bfdd8f.patch
+COPY *.patch /tmp/
 
 RUN cd /tmp/garlicoin-core-0.16.0 \
     && patch -p1 < /tmp/upstream-e1632c73-632ee374-94bfdd8f.patch \
+    && patch -p1 < /tmp/upstream-6d884780.patch \
+    && patch -p1 < /tmp/upstream-2ceb1fd0-8678f665-e0f2c1ad.patch \
     && patch -p1 < /tmp/increase-blocksize-reservations.patch \
     && patch -p1 < /tmp/increase-max-connections.patch \
     && rm -f /tmp/*.patch
