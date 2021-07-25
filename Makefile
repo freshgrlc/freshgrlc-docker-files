@@ -1,5 +1,5 @@
 
-SUBDIRS = certbot freshgrlc-indexer freshgrlc-indexer-api freshgrlc-wallet-api frontend-webserver garlicoin-core garlicoin-core-testnet garlicoin-core-keyseeder tuxcoin-core
+SUBDIRS = certbot cluster-monitor freshgrlc-indexer freshgrlc-indexer-api freshgrlc-wallet-api frontend-webserver garlicoin-core garlicoin-core-testnet garlicoin-core-keyseeder tuxcoin-core
 
 all:
 	for dir in ${SUBDIRS}; do ${MAKE} -C $$dir || exit 1; done
