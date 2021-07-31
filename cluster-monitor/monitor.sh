@@ -14,7 +14,7 @@ out () {
 send_data () {
     if [ -f "${OUTFILE}" -a ! -z "$(cat "${OUTFILE}" 2> /dev/null)" ]; then \
         cat "${OUTFILE}"
-        curl -s -X POST -H 'Content-Type: application/json' -d '{ "content": "'"$(cat "${OUTFILE}")"'" }' "${WEBHOOKURL}"
+        curl -s -X POST -H 'Content-Type: application/json' -d '{ "content": "'"$(cat "${OUTFILE}" | tr '\n' '\a' | sed 's/\a/\\n/g')"'" }' "${WEBHOOKURL}"
         rm -f "${OUTFILE}"
     fi
     touch "${OUTFILE}"
