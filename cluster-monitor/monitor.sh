@@ -39,10 +39,14 @@ while sleep 2; do \
     raw="$(docker service ls | grep -v NAME)"
     for svc in $(echo "$raw" | awk '{ print $2 }'); do \
         status="$(echo "$raw" | grep " $svc " | awk '{ print $4 }')"
-        if [ ! -z "$(echo "$status" | grep "0/")" ]; then \
-            update "svc.$svc" "Service $svc" "DOWN"
+        cur="$(echo $status | awk -F/ '{ print $1 }')"
+        tot="$(echo $status | awk -F/ '{ print $2 }')"
+        if [ "$cur" = "0" ]; then \
+            update "svc.$svc" "Service $svc" "DOWN <:nucc:412734490897809417>"
+        elif [ "$cur" = "$tot" ]; then \
+            update "svc.$svc" "Service $svc" "UP $status ✅"
         else
-            update "svc.$svc" "Service $svc" "UP $status"
+            update "svc.$svc" "Service $svc" "UP $status 😕"
         fi
     done
 
