@@ -23,18 +23,19 @@ send_data () {
 update () {
     f="$BASEDIR/$1"; shift
     name="$1"; shift
+    icon="$1"; shift
 
     [ ! -f "$f" ] && echo "[NO DATA]" > "$f"
     echo "$@" > "$f.new"
     if ! diff -q $f $f.new > /dev/null; then \
-        out "$name update: $(cat "$f") => $(cat "$f.new")"
+        out "$name update: $(cat "$f") 🠒 **$(cat "$f.new")** $icon"
         mv -f "$f.new" "$f"
     fi
 }
 
 
 while sleep 2; do \
-    update nodes "Cluster view" $(docker node ls | grep Active | sed 's/\*//' | awk '{ print $2 }')
+    update nodes "**Cluster view**" "" $(docker node ls | grep Active | sed 's/\*//' | awk '{ print $2 }')
 
     raw="$(docker service ls | grep -v NAME)"
     for svc in $(echo "$raw" | awk '{ print $2 }'); do \
@@ -42,11 +43,15 @@ while sleep 2; do \
         cur="$(echo $status | awk -F/ '{ print $1 }')"
         tot="$(echo $status | awk -F/ '{ print $2 }')"
         if [ "$cur" = "0" ]; then \
-            update "svc.$svc" "Service $svc" "DOWN <:nucc:412734490897809417>"
+            if [ "$tot" = "0" ]; then \
+                update "svc.$svc" "Service **$svc**" "🤷" "DISABLED"
+            else
+                update "svc.$svc" "Service **$svc**" "<:nucc:412734490897809417>" "DOWN"
+            fi
         elif [ "$cur" = "$tot" ]; then \
-            update "svc.$svc" "Service $svc" "UP $status ✅"
+            update "svc.$svc" "Service **$svc**" "✅" "UP $status"
         else
-            update "svc.$svc" "Service $svc" "UP $status 😕"
+            update "svc.$svc" "Service **$svc**" "😕" "UP $status"
         fi
     done
 
