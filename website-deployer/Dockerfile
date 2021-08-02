@@ -1,11 +1,10 @@
-FROM ubuntu:latest
+FROM node:12
 
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
-        ca-certificates git gnupg nodejs npm \
+        ca-certificates git gnupg \
     && rm -rf /var/lib/apt/lists/*
 
 RUN gpg --keyserver hkps://pgp.key-server.io --receive-keys DC025394180D2FE2
-RUN npm install --global yarn
 
 COPY verify-checkout-latest-tag.sh /usr/local/bin/verify-checkout-latest-tag
 COPY do-build.sh /usr/local/bin/do-build
