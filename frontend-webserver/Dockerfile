@@ -1,7 +1,7 @@
 FROM nginx:latest
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
-        curl openssl \
+        curl openssl ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 
 COPY entrypoint.sh /entrypoint.sh
@@ -21,3 +21,5 @@ COPY config/ssl/*.conf /etc/nginx/conf.d/ssl/
 EXPOSE 80 443
 STOPSIGNAL SIGTERM
 CMD ["nginx", "-g", "daemon off;"]
+
+HEALTHCHECK --interval=10s CMD curl -s 'https://freshgrlc.net/' || exit 1
