@@ -17,6 +17,10 @@ RUN git clone 'https://github.com/freshgrlc/freshgrlc-explorer' \
     && cd freshgrlc-explorer \
     && git checkout $(git tag -l --sort=-v:refname | tail -n1)
 
+RUN git clone 'https://github.com/freshgrlc/freshgrlc-pool-website-legacy' 'freshgrlc-pool-website' \
+    && cd freshgrlc-pool-website \
+    && git checkout $(git tag -l --sort=-v:refname | tail -n1)
+
 CMD ["/loop.sh"]
 
 

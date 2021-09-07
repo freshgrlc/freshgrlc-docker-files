@@ -22,6 +22,12 @@ case $(basename "$1") in
         yarn build && \
         deploy build explorer
         ;;
+    freshgrlc-pool-website)
+        rm -Rf build
+        mkdir -p build
+        cp -a css/ fonts/ hashratecheck/ js/ neverforget/ *.html *.gif *.png build/
+        deploy build pool
+        ;;
     *)
         echo "Unexpected project: $(basename "$1")"
         exit 1
