@@ -6,7 +6,7 @@ set -e
 
 htpasswd -b -c /etc/nginx/htpasswd "${NGINX_USERNAME}" "${NGINX_PASSWORD}"
 
-bash -c 'while true; do /usr/bin/certbot renew; sleep 1d; done' &
+bash -c 'while true; do /usr/local/bin/certbot renew --preferred-chain "ISRG Root X1"; sleep 1d; done' &
 sleep 10
 [ "$(jobs -r -p | wc -l)" = 1 ]
 

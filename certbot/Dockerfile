@@ -1,7 +1,13 @@
 FROM nginx:latest
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
-        certbot apache2-utils \
+        python3-pip python3-setuptools \
+        build-essential python3-dev libssl-dev rustc cargo \
+        apache2-utils \
+    && pip3 install certbot \
+    && apt-get remove -y build-essential python3-dev libssl-dev rustc cargo \
+    && apt-get autoremove -y \
+    && apt-get autoclean -y \
     && rm -rf /var/lib/apt/lists/*
 
 COPY entrypoint.sh /entrypoint.sh
