@@ -15,7 +15,7 @@ fi
 export PYTHONUNBUFFERED=1
 
 if [ "${1:0:1}" = '-' ]; then
-    set -- "uwsgi" "--master" "--uid" "www-data" "--http" ":8080" "--mount" "/=api:webapp" "$@"
+    set -- "uwsgi" "--master" "--uid" "www-data" "--gevent" "256" "--http" ":8080" "--mount" "/=api:webapp" "$@"
 fi
 
 exec "$@"
