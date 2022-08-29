@@ -1,5 +1,6 @@
 
 IMAGENAME=garlicoind
+IMAGESOURCE=garlicoin-core-base
 
 include ../dockerimage.mk
 

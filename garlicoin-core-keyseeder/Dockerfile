@@ -5,12 +5,11 @@ RUN apt-get update \
         libdb5.3++-dev \
     && rm -rf /var/lib/apt/lists/*
 
-RUN cd /tmp/garlicoin-core-0.16.0 \
+RUN cd /usr/src/garlicoin-core \
     && ./configure --disable-tests --disable-bench --disable-zmq --with-incompatible-bdb \
-    && make -j16 \
+    && make -j`nproc` \
     && make install \
-    && cd / \
-    && rm -Rf /tmp/garlicoin-core-0.16.0
+    && make clean
 
 VOLUME /var/lib/garlicoind
 HEALTHCHECK CMD su - garlicoind -c 'garlicoin-cli uptime'

@@ -1,14 +1,8 @@
 
 IMAGENAME=garlicoin-core-base
+IMAGESOURCE=garlicoin-core-source
 
-.PHONY: clean docker-build docker-build-depends
-
-all: docker-build
-
-clean:
-
-docker-build: docker-build-depends
-	docker image build -t ${IMAGENAME} .
+include ../dockerimage.mk
 
 docker-build-depends:
 	${MAKE} -C ../garlicoin-core-source docker-build

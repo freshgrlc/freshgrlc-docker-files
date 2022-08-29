@@ -1,11 +1,10 @@
 FROM garlicoin-core-source:latest
 
-RUN cd /tmp/garlicoin-core-0.16.1 \
+RUN cd /usr/src/garlicoin-core \
     && ./configure --disable-tests --disable-bench --disable-zmq --disable-wallet \
-    && make -j16 \
+    && make -j`nproc` \
     && make install \
-    && cd / \
-    && rm -Rf /tmp/garlicoin-core-0.16.1
+    && make clean
 
 VOLUME /var/lib/garlicoind
 

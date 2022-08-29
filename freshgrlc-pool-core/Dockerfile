@@ -2,7 +2,7 @@ FROM garlicoin-core-base:latest
 
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
-        cmake git \
+        cmake \
     && rm -rf /var/lib/apt/lists/*
 
 RUN cd /tmp && \

@@ -1,13 +1,8 @@
 
 IMAGENAME=garlicoin-core-source
 
-.PHONY: clean docker-build
+include ../buildgittag.mk
 
 all: docker-build
 
 clean:
-
-docker-build:
-	docker image build -t ${IMAGENAME} .
-
-
