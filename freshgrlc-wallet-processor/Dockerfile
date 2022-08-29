@@ -10,4 +10,4 @@ ENTRYPOINT [ "/entrypoint.sh" ]
 #   startup and startup-time processing is complete, making it easier
 #   to spot issues.
 #
-HEALTHCHECK --interval=5s --start-period=1m CMD test -f /run/wallet.pid
+HEALTHCHECK --interval=5s --start-period=10m CMD test -f /run/wallet.pid
