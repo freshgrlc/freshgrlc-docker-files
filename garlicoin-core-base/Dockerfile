@@ -1,12 +1,12 @@
 FROM garlicoin-core-source:latest
 
-RUN cd /tmp/garlicoin-core-0.16.0 \
+RUN cd /tmp/garlicoin-core-0.16.1 \
     && ./configure --disable-tests --disable-bench --disable-zmq --disable-wallet \
     && make -j16 \
     && make install \
     && cd / \
-    && rm -Rf /tmp/garlicoin-core-0.16.0
+    && rm -Rf /tmp/garlicoin-core-0.16.1
 
 VOLUME /var/lib/garlicoind
 
-HEALTHCHECK CMD su - garlicoind -c 'garlicoin-cli getblocktemplate'
+HEALTHCHECK --start-period=10m CMD su - garlicoind -c 'garlicoin-cli getblocktemplate'
