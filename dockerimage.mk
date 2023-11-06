@@ -16,7 +16,7 @@ docker-build-depends:
 
 upload: docker-build
 	for tag in $(shell docker image ls ${IMAGENAME} | grep -v REPOSITORY | awk '{ print $$2 }'); do \
-		docker tag ${IMAGENAME}:$$tag ${SERVER}:5000/${IMAGENAME}:$$tag || exit 1; \
-		docker push ${SERVER}:5000/${IMAGENAME}:$$tag || exit 1; \
-		[ "$$tag" = "latest" ] || docker image rm ${IMAGENAME}:$$tag ${SERVER}:5000/${IMAGENAME}:$$tag; \
+		docker tag ${IMAGENAME}:$$tag ${SERVER}/${IMAGENAME}:$$tag || exit 1; \
+		docker push ${SERVER}/${IMAGENAME}:$$tag || exit 1; \
+		[ "$$tag" = "latest" ] || docker image rm ${IMAGENAME}:$$tag ${SERVER}/${IMAGENAME}:$$tag; \
 	done
