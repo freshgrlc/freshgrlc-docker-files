@@ -20,7 +20,7 @@ RUN    cd /tmp \
     && rm -Rf bech32
 
 ENV GNUPGHOME=/usr/src/freshgrlc-wallet/.gnupg
-RUN gpg --keyserver hkps://pgp.key-server.io --receive-keys DC025394180D2FE2
+RUN gpg --keyserver hkps://keys.openpgp.org --receive-keys DC025394180D2FE2 63907B09038FD87B
 
 ARG TAG=undefined
 

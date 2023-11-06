@@ -4,7 +4,7 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-ins
         ca-certificates git gnupg \
     && rm -rf /var/lib/apt/lists/*
 
-RUN gpg --keyserver hkps://pgp.key-server.io --receive-keys DC025394180D2FE2
+RUN gpg --keyserver hkps://keys.openpgp.org --receive-keys DC025394180D2FE2 63907B09038FD87B
 
 COPY verify-checkout-latest-tag.sh /usr/local/bin/verify-checkout-latest-tag
 COPY do-build.sh /usr/local/bin/do-build
